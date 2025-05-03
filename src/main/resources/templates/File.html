@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Range File Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      margin-top: 50px;
+      max-width: 800px;
+    }
+    .file-item {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .file-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .spinner-border {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    #uploadingSpinner {
+      display: none;
+    }
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    .footer-icons a {
+      text-decoration: none;
+      color: #343a40;
+      margin: 0 10px;
+    }
+    .footer-icons i {
+      margin-right: 5px;
+    }
+    .info-box {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      background-color: #e9ecef;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2 class="text-center mb-4">📁 Range File Manager</h2>
+
+  <div class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <input class="form-control" type="file" id="fileInput">
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+      <div id="uploadingSpinner" class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Uploading...</span>
+      </div>
+      <span id="uploadStatus" class="text-primary ms-2"></span>
+      <button class="btn btn-danger" onclick="confirmDeleteAll()">Delete All</button>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h5>Uploaded Files:</h5>
+    <div id="fileList"></div>
+  </div>
+
+  <div class="info-box">
+    <strong>Contact Information:</strong><br>
+    Developer: <strong>range79</strong><br>
+    GitHub: <a href="https://github.com/range79" target="_blank">github.com/range79</a><br>
+    Email: <a href="mailto:darkrange006@gmail.com">darkrange006@gmail.com</a>
+  </div>
+
+  <footer>
+    <div class="footer-icons mb-2">
+      <a href="https://github.com/range79" target="_blank"><i class="bi bi-github"></i>GitHub: <strong>range79</strong></a>
+      <a href="mailto:darkrange006@gmail.com"><i class="bi bi-envelope"></i>Email: <strong>darkrange006@gmail.com</strong></a>
+    </div>
+    <p class="mb-0">📝 Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a></p>
+    <p class="small">&copy; 2025 Range File Upload Project. All rights reserved.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
+
+<script>
+  async function fetchFiles() {
+    const res = await fetch("/file/all");
+    const files = await res.json();
+    const fileList = document.getElementById("fileList");
+    fileList.innerHTML = "";
+
+    files.forEach(file => {
+      const div = document.createElement("div");
+      div.className = "file-item";
+      div.innerHTML = `
+                <div>
+                    <strong>${file.filename}</strong>
+                    <div class="text-muted small">Size: ${file.size} bytes</div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn btn-sm btn-outline-success" onclick="downloadFile(${file.id}, '${file.filename}')">⬇️ Download</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${file.id}, '${file.filename}')">🗑️ Delete</button>
+                </div>
+            `;
+      fileList.appendChild(div);
+    });
+  }
+
+  async function uploadFile() {
+    const input = document.getElementById("fileInput");
+    const file = input.files[0];
+    if (!file) return alert("Please select a file.");
+
+    const formData = new FormData();
+    formData.append("multipartFile", file);
+
+    const spinner = document.getElementById("uploadingSpinner");
+    const statusText = document.getElementById("uploadStatus");
+
+    spinner.style.display = "inline-block";
+    statusText.textContent = "⏳ Uploading...";
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
+      const res = await fetch("/file/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      input.value = "";
+      fetchFiles();
+      statusText.textContent = "✔️ Upload complete";
+    } catch (err) {
+      alert("❌ Upload error: " + err.message);
+      statusText.textContent = "❌ Upload failed";
+    } finally {
+      spinner.style.display = "none";
+      setTimeout(() => statusText.textContent = "", 3000);
+    }
+  }
+
+  async function downloadFile(id, filename) {
+    const res = await fetch(`/file/download/${id}`);
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function confirmDelete(id, filename) {
+    if (confirm(`Are you sure you want to delete '${filename}'?`)) {
+      deleteFile(id);
+    }
+  }
+
+  async function deleteFile(id) {
+    await fetch(`/file/delete/${id}`, { method: "DELETE" });
+    fetchFiles();
+  }
+
+  function confirmDeleteAll() {
+    if (confirm("⚠️ Are you sure you want to delete ALL files? This cannot be undone.")) {
+      deleteAll();
+    }
+  }
+
+  async function deleteAll() {
+    await fetch(`/file/delete/all`, { method: "DELETE" });
+    fetchFiles();
+  }
+
+  window.onload = fetchFiles;
+</script>
+</body>
+</html>
