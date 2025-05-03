@@ -1,108 +1,90 @@
+# 📁 Kotlin File Upload Server (Android + Desktop Compatible)
 
-# 📁 Kotlin File Upload Server (Cross-Platform & Android Compatible)
-
-A lightweight, portable **file upload server** built with **Kotlin + Spring Boot**.  
-Runs smoothly on **Windows**, **macOS**, **Linux**, and even **Android** (via Termux).
-
-Easily upload, download, and manage files from a responsive web UI — without needing any database installation or external dependencies.
+This is a lightweight **file upload server** built with **Kotlin** and **Spring Boot**, designed to run on Linux, Windows, and Android devices via [Termux](https://f-droid.org/packages/com.termux/). It's a simple yet practical project for uploading, downloading, and managing files from a minimal web interface — entirely offline and portable.
 
 ---
 
 ## 🚀 Features
 
-- 📤 Upload files via UI
+- 📤 Upload files
 - 📥 Download files by ID
 - 🗑️ Delete individual or all files
-- 🌐 Modern, responsive web interface (Thymeleaf)
-- 💾 Embedded H2 DB — zero configuration
-- 📱 Works even on Android via Termux
-- 🖥️ One-click `windows.bat` support
-- 🍏 macOS users can also use `android.sh` with Java installed
-- ✅ `.jar` is **committed** (not in `.gitignore`) — no build required!
+- 🌐 Responsive web UI (Thymeleaf + Bootstrap)
+- 📱 Runs on Android (via Termux)
+- 🪟 Compatible with Windows, macOS, and Linux
+- 💾 Embedded H2 database (no external setup)
+- ⚙️ Auto-launch scripts for Android and Windows
 
 ---
 
 ## ⚙️ Tech Stack
 
-- Kotlin (JVM 17)
+- Kotlin (JVM 17+)
 - Spring Boot 3.4.5
+- Spring Web + Spring Data JPA
 - H2 Database
-- Spring Web + JPA
-- Thymeleaf
-- JUnit 5 + KotlinTest
-- SLF4J Logging
+- Thymeleaf (for UI)
+- JUnit 5 + Kotlin Test
+- Gradle (Kotlin DSL)
+- SLF4J (Logging)
 
 ---
 
-## 📸 Screenshot
+## 🖼️ Screenshot
 
-![Screenshot](images/project.png)
-
----
-
-## 🧱 Project Structure
-
-
-
-.
-├── android.sh           # Android/macOS/Unix launcher
-├── windows.bat          # One-click Windows launcher
-├── build/libs/          # Contains the compiled .jar
-├── src/                 # Source code
-├── images/              # Screenshots
-└── README.md
-
-````
+![screenshot](images/project.png)
 
 ---
 
-## 📱 Run on Android, Linux, macOS
+## 📦 Java Requirement
 
-> ✅ **Run `android.sh`** – works on Android (Termux), Linux, and macOS.
+> **Java 21+ is required** to run this application on any platform.
 
-### ☑️ Prerequisites
-
-- `Java 17+` must be installed on your system
-  - On Android: script installs OpenJDK
-  - On macOS: use `brew install openjdk@17`
-  - On Linux: use `apt install openjdk-17-jdk`
-
-### 🔧 Steps:
-
+Check your installed version:
 ```bash
-git clone https://github.com/range79/file-server.git
-cd file-server
-chmod +x android.sh
-./android.sh
-````
-
-Then open your browser:
-
+java -version
 ```
-http://localhost:8080
-```
+If it’s below 21, install it from:
+👉 https://adoptium.net/en-GB/temurin/releases/?version=21
 
 ---
 
-## 🪟 Run on Windows
+## 📱 Android Setup (via Termux)
 
+1. Install Termux from [F-Droid](https://f-droid.org/packages/com.termux/)
+2. Install Git and clone the project:
+   ```bash
+   pkg install git
+   git clone https://github.com/range79/file-server.git
+   cd file-server
+   ```
+3. Run the setup script:
+   ```bash
+   chmod +x android.sh
+   ./android.sh
+   ```
+4. Access from your browser:
+   ```
+   http://localhost:8080
+   ```
 
-> Just double-click `windows.bat`
-> Or run it from terminal:
-
-```cmd
-windows.bat
-```
-
-> ⚠️ **Note:** This script hasn’t been fully tested yet.
-> If you encounter issues and have experience with Windows Batch scripting, feel free to fork the project and help improve it!
-
-
-Make sure Java 17+ is installed and added to your `PATH`.
+💡 `android.sh` can also be used on **Linux/macOS/Windows (via WSL)** if Java is installed.
 
 ---
 
-## 🧪 Run Tests
+## 🪟 Windows Setup
+
+1. Open CMD or PowerShell
+2. Run the Gradle-based launcher:
+   ```bash
+   windows-gradle.bat
+   ```
+
+> If it doesn’t work, feel free to **fork and improve the script** — contributions are welcome!
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 ./gradlew test
@@ -110,16 +92,30 @@ Make sure Java 17+ is installed and added to your `PATH`.
 
 ---
 
-## 🧰 Build Manually
+## 🛠️ Building the Project
 
 ```bash
 ./gradlew build
 ```
 
-Your final `.jar` will be here:
-
+The final JAR will be located at:
 ```
 build/libs/FIle-Upload-1.0.0-STABLE.jar
+```
+
+---
+
+## 🧾 Project Structure
+
+```
+.
+├── android.sh            # Auto-setup for Termux/Android/Linux
+├── windows-gradle.bat    # Windows launcher (Gradle based)
+├── build.gradle.kts      # Gradle config (Kotlin DSL)
+├── src/                  # Source code
+├── build/libs/           # JAR file lives here
+├── images/               # Screenshots/assets
+└── README.md
 ```
 
 ---
@@ -130,10 +126,11 @@ MIT — use freely, improve openly.
 
 ---
 
-## 🙋‍♂️ Author
+## 🙋‍♂️ Author & Contact
 
-Developed with ❤️ by **range79**
+Built with love and Kotlin by **range79**.
 
-* 💻 GitHub: [github.com/range79](https://github.com/range79)
-* 📧 Email: [darkrange6@gmail.com](mailto:darkrange6@gmail.com)
+📧 Contact: [darkrange006@gmail.com](mailto:darkrange006@gmail.com)  
+🌐 GitHub: [github.com/range79](https://github.com/range79)
 
+> ⭐ Star the repo if you find it useful!
